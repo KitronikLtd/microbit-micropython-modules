@@ -34,16 +34,27 @@ class ZipLEDs(NeoPixel):
     def setPixelColour(self,pixel,colourToSet):
         self[pixel] = colourToSet
 
+    #suboptimal code because NeoPixel not really a list, it just has list like tendencies
     def rotate(self, rotateBy):
-    #crappy code because it si not really a list, it just has list like tendencies
-        pixel = self[0]
-        for pixel_id in range(0,len(self)-1):
-            self[pixel_id] = self[pixel_id+1]
-        self[len(self)-1] = pixel
+        rotated = 0
+        if(rotateBy > 0): #shift up
+            while rotated < rotateBy:
+                pixel = self[len(self)-1]
+                for pixel_id in range(len(self)-1,0,-1):
+                    self[pixel_id] = self[pixel_id-1]
+                self[0] = pixel
+                rotated = rotated+1
+        else: #shift down
+            while rotated > rotateBy:
+                pixel = self[0]
+                for pixel_id in range(0,len(self)-1):
+                    self[pixel_id] = self[pixel_id+1]
+                self[len(self)-1] = pixel
+                rotated = rotated-1 #avoid an ABS calculation for all the saving that it gives...
     
     
     
-    #TODO actually implement soem brightness stuff. 
+    #TODO actually implement some brightness stuff. 
     #Would be better in the assembler code as per the Kitronik implementation for makecode
     def setBrightness(self,brightness):
         brightnessValue = brightness
