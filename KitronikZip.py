@@ -63,7 +63,10 @@ class ZipLEDs(NeoPixel):
     def setBrightness(self,brightness):
         brightnessValue = brightness
     
+    #not sure that range can be done sensibly
+    #it would involve making a list of stuff that you could substitue into the base class somehow...
     #def range(self, fromPixel, howMany):
+    #TODO?
     
         
     def zipWavelength(self, wavelength):
