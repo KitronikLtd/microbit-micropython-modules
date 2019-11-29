@@ -1,11 +1,32 @@
 # microbit-module: KitronikZip@1.0.0
 # A module for the Kitronik Zip LEDs
+# Copyright (c) Kitronik Ltd 2019. 
+#
+# The MIT License (MIT)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 
 from neopixel import NeoPixel
 import math
 
 class ZipColours:
-
+#Simple class to hold colours in human readable manner
 		Red = (255,0,0)
 		Orange = (255,165,0)
 		Yellow = (255,255,0)
@@ -19,7 +40,9 @@ class ZipColours:
 
 
 class ZipLEDs(NeoPixel):
-    brightnessValue = 128
+
+    brightnessValue = 128 #we dont actually do anything with brightness yet.
+    
     #Set all thepixels to a colour
     def setColour(self,colourToSet):
         for pixel_id in range(0,len(self)):
@@ -29,12 +52,12 @@ class ZipLEDs(NeoPixel):
     def showColour(self,colourToShow):
         self.setColour(colourToShow)
         self.show()
-        
+    #Show a colour on a single Zip LED    
     def showPixel(self,pixel,colourToShow):
         self.setPixelColour(pixel,colourToShow)
         self.show()
         
-    #Set a pixel to a colour but dont show it
+    #Set a Zip LED to a colour but dont show it
     def setPixelColour(self,pixel,colourToSet):
         self[pixel] = colourToSet
 
