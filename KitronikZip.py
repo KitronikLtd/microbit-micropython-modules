@@ -29,7 +29,11 @@ class ZipLEDs(NeoPixel):
     def showColour(self,colourToShow):
         self.setColour(colourToShow)
         self.show()
-
+        
+    def showPixel(self,pixel,colourToShow):
+        self.setPixelColour(pixel,colourToShow)
+        self.show()
+        
     #Set a pixel to a colour but dont show it
     def setPixelColour(self,pixel,colourToSet):
         self[pixel] = colourToSet
@@ -61,9 +65,6 @@ class ZipLEDs(NeoPixel):
     
     #def range(self, fromPixel, howMany):
     
-    
-    #def showBarGraph(self,valueToDisplay, Max):
-      
         
     def zipWavelength(self, wavelength):
         blueGreen = 4.6364
@@ -83,21 +84,18 @@ class ZipLEDs(NeoPixel):
             greenVal = 255 - redVal
         return (redVal, greenVal, blueVal)
 
-    def hueToRGB (self, hue): #probably will optimaise this away later.
+    def hueToRGB (self, hue):
         redVal =0
         greenVal =0
         blueVal =0            
         hueStep = 2.125 
         if ((hue >= 0) and (hue < 120)): #RedGreen section
-            #We are between Blue and Green so mix those
             greenVal = math.floor((hue) * hueStep)
             redVal = 255 - greenVal 
         elif ((hue >= 120) and (hue < 240)): #GreenBlueSection
-            #we are between Green and Red, so mix those
             blueVal = math.floor((hue-120) * hueStep)
             greenVal = 255 - blueVal
-        elif ((hue >= 240) and (hue < 360)): #GreenBlueSection
-            #we are between Green and Red, so mix those
+        elif ((hue >= 240) and (hue < 360)): #BlueRedSection
             redVal = math.floor((hue-240) * hueStep)
             blueVal = 255 - redVal
 
@@ -114,3 +112,20 @@ class ZipLEDs(NeoPixel):
             for pixel_id in range(0,len(self)):
                 self[pixel_id] = self.hueToRGB(endHue-(pixel_id * hueStep))
         self.show()
+ 
+    #a bar graph of green(lowest value) to red (Range)
+    def showBarGraph(self, valueToDisplay, graphRange): 
+        if (graphRange <= 0): #-ve value doesnt make sense, so just turn on first LED as green
+            self.clear()
+            self.showPixel(0,ZipColours.Green)
+        else:
+            value = math.fabs(valueToDisplay) #only interested in magnitude
+            numberOfPixels = len(self)
+            visible = math.floor((value * numberOfPixels)/graphRange)
+            for i in range(numberOfPixels):
+                if(i <= visible):
+                    greenVal = math.floor((i * 255)/ (numberOfPixels-1))
+                    self.setPixelColour(i, (greenVal, 255 - greenVal, 0))
+                else:
+                    self.setPixelColour(i, (0,0,0)) #turn off pixels over the display value
+            self.show()
