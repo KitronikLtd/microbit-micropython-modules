@@ -147,10 +147,10 @@ class ZipLEDs(NeoPixel):
         else:
             value = math.fabs(valueToDisplay) #only interested in magnitude
             numberOfPixels = len(self)
-            visible = math.floor((value * numberOfPixels)/graphRange)
+            visible = (value * numberOfPixels)//graphRange
             for i in range(numberOfPixels):
                 if(i <= visible):
-                    greenVal = math.floor((i * 255)/ (numberOfPixels-1))
+                    greenVal =(i * 255)//(numberOfPixels-1)
                     self.setPixelColour(i, (greenVal, 255 - greenVal, 0))
                 else:
                     self.setPixelColour(i, (0,0,0)) #turn off pixels over the display value
