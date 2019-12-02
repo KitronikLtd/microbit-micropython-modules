@@ -1,8 +1,9 @@
 # microbit-module: kitronikKlimate@0.0.1
-from microbit import *
+# A module for the Kitronik BME280 chip
+from microbit import i2c, pin19, pin20
 
 class Klimate:
-    global temperatureReading	
+    global temperatureReading
     global pressureReading
     global humidityReading
     global T1
@@ -23,9 +24,9 @@ class Klimate:
     global H4
     global H5
     global H6
-    global adcRawTemperature       
-    global adcRawPressure       
-    global adcRawHumidity       
+    global adcRawTemperature
+    global adcRawPressure
+    global adcRawHumidity
 
     def i2cRead(self, reg, byte):
         writeBuf = bytearray(1)
@@ -37,28 +38,28 @@ class Klimate:
         
     def i2cReadInt8BE(self, reg):
         readBuf = bytearray(1)
-        readBuf = self.i2cRead(self, reg, 1)
+        readBuf = self.i2cRead(reg, 1)
         return readBuf[0]
         
     def i2cReadInt8LE(self, reg):
         readBuf = bytearray(1)
-        readBuf = self.i2cRead(self, reg, 1)
+        readBuf = self.i2cRead(reg, 1)
         Rd = self.bit_reverse(readBuf[0])
         return Rd
         
     def i2cReadUInt16LE(self, reg):
         readBuf = bytearray(2)
-        readBuf = self.i2cRead(self, reg, 2)
+        readBuf = self.i2cRead(reg, 2)
         value = (0 << 16) | (readBuf[1] << 8) | (readBuf[0])
         return value
         
     def i2cReadInt16LE(self, reg):
         readBuf = bytearray(2)
-        readBuf = self.i2cRead(self, reg, 2)
+        readBuf = self.i2cRead(reg, 2)
         value = (readBuf[1] << 8) | readBuf[0]
         return value
     
-    def bit_reverse(n):
+    def bit_reverse(self, n):
         result = 0
         for i in range (8):
             result <<= 1
@@ -66,7 +67,7 @@ class Klimate:
             n >>= 1
         return result
     
-    def secretIncantation(self): 
+    def __init__(self): 
         writeBuf = bytearray(2)
         writeBuf[0] = 0xF2
         writeBuf[1] = 0x01
@@ -77,25 +78,25 @@ class Klimate:
         writeBuf[0] = 0xF5
         writeBuf[1] = 0x08
         i2c.write(0x76, writeBuf, False)
-        self.T1 = self.i2cReadUInt16LE(self, 0x88)
-        self.T2 = self.i2cReadInt16LE(self, 0x8A)
-        self.T3 = self.i2cReadInt16LE(self, 0x8C)
-        self.P1 = self.i2cReadUInt16LE(self, 0x8E)
-        self.P2 = self.i2cReadInt16LE(self, 0x90)
-        self.P3 = self.i2cReadInt16LE(self, 0x92)
-        self.P4 = self.i2cReadInt16LE(self, 0x94)
-        self.P5 = self.i2cReadInt16LE(self, 0x96)
-        self.P6 = self.i2cReadInt16LE(self, 0x98)
-        self.P7 = self.i2cReadInt16LE(self, 0x9A)
-        self.P8 = self.i2cReadInt16LE(self, 0x9C)
-        self.P9 = self.i2cReadInt16LE(self, 0x9E)
-        self.H1 = self.i2cReadInt8BE(self, 0xA1)
-        self.H2 = self.i2cReadInt16LE(self, 0xE1)
-        self.H3 = self.i2cReadInt8BE(self, 0xE3)
-        DIG_H4_LSB_DIG_H5_MSB = self.i2cReadInt8BE(self, 0xE5)
-        self.H4 = (self.i2cReadInt8BE(self, 0xE4) << 4) + (DIG_H4_LSB_DIG_H5_MSB % 16)
-        self.H5 = (self.i2cReadInt8BE(self, 0xE6) << 4) + (DIG_H4_LSB_DIG_H5_MSB >> 4)
-        self.H6 = self.i2cReadInt8LE(self, 0xE7)
+        self.T1 = self.i2cReadUInt16LE(0x88)
+        self.T2 = self.i2cReadInt16LE(0x8A)
+        self.T3 = self.i2cReadInt16LE(0x8C)
+        self.P1 = self.i2cReadUInt16LE(0x8E)
+        self.P2 = self.i2cReadInt16LE(0x90)
+        self.P3 = self.i2cReadInt16LE(0x92)
+        self.P4 = self.i2cReadInt16LE(0x94)
+        self.P5 = self.i2cReadInt16LE(0x96)
+        self.P6 = self.i2cReadInt16LE(0x98)
+        self.P7 = self.i2cReadInt16LE(0x9A)
+        self.P8 = self.i2cReadInt16LE(0x9C)
+        self.P9 = self.i2cReadInt16LE(0x9E)
+        self.H1 = self.i2cReadInt8BE(0xA1)
+        self.H2 = self.i2cReadInt16LE(0xE1)
+        self.H3 = self.i2cReadInt8BE(0xE3)
+        DIG_H4_LSB_DIG_H5_MSB = self.i2cReadInt8BE(0xE5)
+        self.H4 = (self.i2cReadInt8BE(0xE4) << 4) + (DIG_H4_LSB_DIG_H5_MSB % 16)
+        self.H5 = (self.i2cReadInt8BE(0xE6) << 4) + (DIG_H4_LSB_DIG_H5_MSB >> 4)
+        self.H6 = self.i2cReadInt8LE(0xE7)
     
     def getReadings(self): 
         measurementsBuf = bytearray(8)
@@ -133,10 +134,12 @@ class Klimate:
             var2 = 419430400
         self.humidityReading = (var2 >> 12) // 1024
 
-    def readValue(self): 
-        self.getReadings(self)
-        temperatureStr = str(self.temperatureReading)
-        humidityStr = str(self.humidityReading)
-        pressureStr = str(self.pressureReading)
-        parameterStr = "" + (temperatureStr) + "C  " + (pressureStr) + "Pa  " + (humidityStr) + "%"
-        return parameterStr
+    def read(self, readRequest): 
+        self.getReadings()
+        if readRequest is "temperature":
+            valueRead = self.temperatureReading
+        elif readRequest is "pressure":
+            valueRead = self.humidityReading
+        elif readRequest is "humidity":
+            valueRead = self.pressureReading
+        return valueRead
