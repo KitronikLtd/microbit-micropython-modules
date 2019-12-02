@@ -58,7 +58,6 @@ class RTC:
             valueRead = self.bcdToDec(currentMinutes, 0x70)
         elif readRequest is "seconds":
             valueRead = self.bcdToDec(currentSeconds, 0x70)
-            print(valueRead)
         elif readRequest is "day":
             valueRead = self.bcdToDec(currentDay, 0x30)
         elif readRequest is "month":
