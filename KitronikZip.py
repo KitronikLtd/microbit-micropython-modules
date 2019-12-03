@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from microbit import *
 from neopixel import NeoPixel
 import math
 
@@ -40,8 +41,8 @@ class ZipColours:
 
 
 class ZipLEDs(NeoPixel):
-
-    brightnessValue = 128 #we dont actually do anything with brightness yet.
+    # Default brightness is 50%
+    brightnessPercent = 50 
     
     #Set all thepixels to a colour
     def setColour(self,colourToSet):
@@ -51,11 +52,11 @@ class ZipLEDs(NeoPixel):
     #Show the colour on all the ZipLeds
     def showColour(self,colourToShow):
         self.setColour(colourToShow)
-        self.show()
+        self._applyBrightness()
     #Show a colour on a single Zip LED    
     def showPixel(self,pixel,colourToShow):
         self.setPixelColour(pixel,colourToShow)
-        self.show()
+        self._applyBrightness()
         
     #Set a Zip LED to a colour but dont show it
     def setPixelColour(self,pixel,colourToSet):
@@ -78,13 +79,59 @@ class ZipLEDs(NeoPixel):
                     self[pixel_id] = self[pixel_id+1]
                 self[len(self)-1] = pixel
                 rotated = rotated-1 #avoid an ABS calculation for all the saving that it gives...
+
+    # Set the brightness percentage, changes brightnessPercent variable
+    # Calls _applyBrightness to make changes visible
+    def setBrightness(self, brightness):
+        self.brightnessPercent = brightness
+        if (self.brightnessPercent <= 0):
+            self.brightnessPercent = 1
+        elif (self.brightnessPercent > 100):
+            self.brightnessPercent = 100
+
+        self._applyBrightness()
     
-    
-    
-    #TODO actually implement some brightness stuff. 
-    #Would be better in the assembler code as per the Kitronik implementation for makecode
-    def setBrightness(self,brightness):
-        brightnessValue = brightness
+    # Apply the brightness setting and immediately show the changes
+    def _applyBrightness(self):
+
+        for pixel_id in range(0,len(self)):
+            pixelData = self[pixel_id]
+            r = pixelData[0]
+            g = pixelData[1]
+            b = pixelData[2]
+            brMultiplier = 2.55*self.brightnessPercent # brightnessMultipler = (255/100)*brightness
+            if (r == 0) and (g == 0) and (b ==0):
+                rBrightness = 0
+                gBrightness = 0
+                bBrightness = 0
+            elif (r > g): # r > g
+                if (r > b): # r > b
+                    rbRatio = b/r
+                    rgRatio = g/r
+                    rBrightness = math.floor(brMultiplier*1)
+                    gBrightness = math.floor(brMultiplier*rgRatio)
+                    bBrightness = math.floor(brMultiplier*rbRatio)
+                else: # b > r
+                    brRatio = r/b
+                    bgRatio = g/b
+                    rBrightness = math.floor(brMultiplier*brRatio)
+                    gBrightness = math.floor(brMultiplier*bgRatio)
+                    bBrightness = math.floor(brMultiplier*1)
+            else: # g > r
+                if (g > b):
+                    gbRatio = b/g
+                    grRatio = r/g
+                    rBrightness = math.floor(brMultiplier*grRatio)
+                    gBrightness = math.floor(brMultiplier*1)
+                    bBrightness = math.floor(brMultiplier*gbRatio)
+                else: # b > g
+                    bgRatio = g/b
+                    brRatio = r/b
+                    rBrightness = math.floor(brMultiplier*brRatio)
+                    gBrightness = math.floor(brMultiplier*bgRatio)
+                    bBrightness = math.floor(brMultiplier*1)
+            self[pixel_id] = (rBrightness, gBrightness, bBrightness)
+        self.show()
     
     #not sure that range can be done sensibly
     #it would involve making a list of stuff that you could substitue into the base class somehow...
@@ -137,7 +184,7 @@ class ZipLEDs(NeoPixel):
         else:#draw the rainbow backwards
             for pixel_id in range(0,len(self)):
                 self[pixel_id] = self.hueToRGB(endHue-(pixel_id * hueStep))
-        self.show()
+        self._applyBrightness()
  
     #a bar graph of green(lowest value) to red (Range)
     def showBarGraph(self, valueToDisplay, graphRange): 
@@ -154,4 +201,4 @@ class ZipLEDs(NeoPixel):
                     self.setPixelColour(i, (greenVal, 255 - greenVal, 0))
                 else:
                     self.setPixelColour(i, (0,0,0)) #turn off pixels over the display value
-            self.show()
+        self._applyBrightness()
