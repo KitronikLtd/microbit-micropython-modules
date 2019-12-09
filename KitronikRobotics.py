@@ -1,4 +1,4 @@
-# microbit-module: kitronikRobotics@1.0.0
+# microbit-module: KitronikRobotics@1.0.0
 # Copyright (c) Kitronik Ltd 2019. 
 #
 # The MIT License (MIT)
