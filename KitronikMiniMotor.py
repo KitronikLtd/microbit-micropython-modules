@@ -30,9 +30,9 @@ Using the module:
 - Controlling motors, stepper motors and servos:
  * Drive Motors: m1.drive("cw",100) [Note: Direction is "cw" or "c_cw", speed 1 to 100)
  * Stop Motors: m1.stop()
- * Drive Stepper Motor (Steps): stepper.turnSteps("cw",50) [Note: Direction is "cw" or "c_cw", steps 1 to 200 (default)]
+ * Drive Stepper Motor (Steps): stepper.turnSteps("cw",50,50) [Note: Direction is "cw" or "c_cw", steps 1 to 200 (default), speed 1 to 100%]
   - Change default stepper steps: settings.stepperMotorSteps = "NEW NUMBER OF STEPS"
- * Drive Stepper Motor (Angle): stepper.turnAngle("c_cw",180) [Note: Angle 1 to 360]
+ * Drive Stepper Motor (Angle): stepper.turnAngle("c_cw",180,100) [Note: Angle 1 to 360, speed 1 to 100%]
  * Turn Servo: sv.write_angle(90) [Note: Angle 0 to 180]
 """
 
@@ -48,14 +48,14 @@ class Motor:
   self.pinA = pinA
   self.pinB = pinB
 
- def drive(self,direct,speed):
+ def drive(self,direction,speed):
   if (speed<0): speed=0
   elif (speed>100): speed=100
   speedOP=math.floor(speed*(1023/100))
-  if (direct=="c_cw"):
+  if (direction=="c_cw"):
    self.pinA.write_analog(speedOP)
    self.pinB.write_digital(0)
-  elif (direct=="cw"):
+  elif (direction=="cw"):
    self.pinA.write_digital(0)
    self.pinB.write_analog(speedOP)
 
@@ -68,16 +68,22 @@ class StepperMotor:
   self.coil1 = Motor(pinA,pinB)
   self.coil2 = Motor(pinC,pinD)
 
- def turnAngle(self,direction, angle):
+ def turnAngle(self,direction,angle,speed):
   angleToSteps = 0
   angleToSteps = ((angle - 1) * (settings.stepperMotorSteps - 1)) / (360 - 1) + 1
   angleToSteps = int(angleToSteps)
-  self._driveMotor(direction, angleToSteps)
+  if speed < 1: speed = 1
+  if speed > 100: speed = 100
+  speedDelay = math.floor(80 - ((speed/100)*68))
+  self._driveMotor(direction,angleToSteps,speedDelay)
 
- def turnSteps(self,direction, stepperSteps):
-  self._driveMotor(direction, stepperSteps)
+ def turnSteps(self,direction,stepperSteps,speed):
+  if speed < 1: speed = 1
+  if speed > 100: speed = 100
+  speedDelay = math.floor(80 - ((speed/100)*68))
+  self._driveMotor(direction,stepperSteps,speedDelay)
 
- def _driveMotor(self,direction, steps):
+ def _driveMotor(self,direction,steps,speedDelay):
   stepCounter = 0
   while stepCounter < steps:
    if settings.stepStage == 1 or settings.stepStage == 3:
@@ -94,7 +100,7 @@ class StepperMotor:
     self.coil1.drive(currentDirection,100)
    elif currentCoil == 2:
     self.coil2.drive(currentDirection,100)
-   sleep(20)
+   sleep(speedDelay)
 
    if direction == "c_cw":
     if settings.stepStage == 4:
