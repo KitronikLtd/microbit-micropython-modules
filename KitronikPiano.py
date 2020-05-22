@@ -57,9 +57,11 @@ class Piano:
    # Reads the chip ID, should be 0x11 (chip ID addr = 0)
    s.buff[0] = 0
    i2c.write(s._CHIP_ADDR, s.buff, False)
-   s.buff = i2c.read(s._CHIP_ADDR, 1, False)
-   while s.buff[0] != 0x11:
-    s.buff = i2c.read(s._CHIP_ADDR, 1, False)
+   reading = True
+   while reading:
+    readBuff = i2c.read(s._CHIP_ADDR, 1, False)
+    if (readBuff == 0x11):
+     reading = False
    # Change sensitivity (burst length) of keys 0-14 to 'sense' (default is 8)
    for sensitivityReg in range(54, 69, 1):
     s.buff2[0] = sensitivityReg
